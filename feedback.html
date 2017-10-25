@@ -1,0 +1,692 @@
+<!--
+Author: Russell Santos
+Project: Feedback 
+feedback.html: This file is a feedback form for the user who hypothetically has gone used an app. In order to divide feedback in an organized
+                  manner, I tried to make it so that the user is forced to make their comments as specific
+                  and directed as possible. Since they had to comment about a particular module(s)
+                  it is easy to parse the feedback into useful and organized information, making it easier
+                  for this information to reach the correct people. This file puts the form feedback into a
+                  JSON array, which will include the user's first name, last name, email, company, and comments.
+                  All of these are named in the JSON array. The comments are name whatever the
+                  modules name is, followed by a space and the word "Comment".
+-->
+
+<!--<script src="cordova.js"></script>-->
+<script src="./jquery-3.2.1.min.js"></script>
+<!--<script src="Toast.js"></script>-->
+
+<div class="feedback">
+<h1 class="welcome-banner">Questions, Comments, Concerns?</h1>
+    <h1 class="second-banner">Let Us Know</h1>
+    <br>
+
+    <!--The section below is the HTML for the form that the user will fill out.
+        The form uses inputs and textarea. Everything will be included in the final JSON.
+        As the user proceeds differenct parts of the form will become visible or become hidden-->
+
+    <form name="myForm" class="form-props" id="form" onsubmit='return onSubmit(this)'>
+
+        <!--The section below is the basic information for any feedback form, first name,
+            last name, email address, and company. When the user clicks on the input box
+            it fills light blue to indicate which box they pressed.-->
+
+        <label for="first-name" id="first-name-label">First name:</label>
+        <input class="line-space" type="text" name="First Name" id="first-name" value="" size="20" placeholder="Your first name...">
+
+        <label for="last-name" id="last-name-label">Last name:</label>
+        <input class="line-space" type="text" name="Last Name" id="last-name" value=""size="20" placeholder="Your last name...">
+
+        <label for="email" id="email-label">Email:</label>
+        <input class="line-space" type="email" name="Email" id="email" value="" size="20" placeholder="Your email...">
+
+        <label for="company" id="company-label">Company:</label>
+        <input class="line-space" type="text" name="Company" id="company" value="" size="20" placeholder="Your company...">
+
+        <p style ="white-space: nowrap;"class="line-space">Question about a specific module?</p>
+
+        <!--The section below is where the user decides whether they want to comment about the modules themselves
+            or just leave a general comment about the app 
+            Depending on what button they press, different options will become available
+            The user may go back and change their mind. If they decide to change, all information entered (with the exception of the basic info above)
+            will be deleted and hidden.-->
+
+        <label style="vertical-align: middle; margin-left: 5%" for="checkboxYes">Yes:</label>
+        <input class="checks-yes" value="Yes" id="checkboxYes" name="checkboxYes" onclick="showOptions(this)" type="checkbox" size="200">
+
+        <label style="margin-left: 30%" for="checkboxNo">No:</label>
+        <input class="checks-no" value="No" id="checkboxNo" name="checkboxNo" onclick="showOptionsNo(this)" type="checkbox" size="200">
+
+        <!-- The switch below allows the user to add more modules to comment on. The reason I don't allow them to
+            add modules without the switch being on, is in case they only wanted to comment on one module, but accidentally
+            selected the wrong module and need to change the module that they actually want to comment on-->
+
+        <label class="switch" id="option-decider">
+            <input id="slider" type="checkbox">
+            <div class="slider round"></div>
+        </label>
+        <label id="option-decider-label" for="option-decider">Toggle to comment about multiple modules</label>
+
+        <!--This section contains the module options for the user. When they click on one, it lights up orange
+            to indicate that they have selected it. On clicking the option, a textarea appears below for the user
+            to enter their comment. A submit button is underneath that. If the user has toggled the slider on then
+            they may select multiple modules, in which case the textareas will append to most recently made textarea,
+            subsequently pushing the submit button down. -->
+
+        <div class="container" id="options" style="display: none">
+            <ul>
+                <li>
+                    <input value="Timecard Exceptions" onclick="newComment(this)" type="radio" class="radios" id="Timecard Exceptions" name="selector">
+                    <label id="Timecard Exceptions Label" for="Timecard Exceptions">Timecard Exceptions</label>
+
+                    <div class="check transform"></div>
+                </li>
+
+                <li>
+                    <input value="Manage Timecards" onclick="newComment(this)" type="radio" class="radios" id="Manage Timecards" name="selector">
+                    <label id="Manage Timecards Label" for="Manage Timecards">Manage Timecards</label>
+
+                    <div class="check transform"></div>
+                </li>
+
+                <li>
+                    <input value="Schedules" onclick="newComment(this)" type="radio" class="radios" id="Schedules" name="selector">
+                    <label id="Schedules Label" for="Schedules">Schedules</label>
+
+                    <div class="check transform"></div>
+                </li>
+                <li>
+                    <input value="Staffing" onclick="newComment(this)" type="radio" class="radios" id="Staffing" name="selector">
+                    <label id="Staffing Label" for="Staffing">Staffing</label>
+
+                    <div class="check transform"></div>
+                </li>
+                <li>
+                    <input value="Punch" type="radio" onclick="newComment(this)" class="radios" id="Punch" name="selector">
+                    <label id="Punch Label" for="Punch">Punch</label>
+
+                    <div class="check transform"></div>
+                </li>
+                <li>
+                    <input value="Timecard" type="radio" onclick="newComment(this)" class="radios" id="Timecard" name="selector">
+                    <label id="Timecard Label" for="Timecard">Timecard</label>
+
+                    <div class="check transform"></div>
+                </li>
+                <li>
+                    <input value="My Schedule" onclick="newComment(this)" type="radio" class="radios" id="My Schedule" name="selector">
+                    <label id ="My Schedule Label" for="My Schedule">My Schedule</label>
+
+                    <div class="check transform"></div>
+                </li>
+                <li>
+                    <input value="Accruals" onclick="newComment(this)" type="radio" class="radios" id="Accruals" name="selector">
+                    <label id="Accruals Label" for="Accruals">Accruals</label>
+
+                    <div class="check transform"></div>
+                </li>
+            </ul>
+        </div>
+        <div style="display:none; margin-bottom:10%; margin-top: 10%" id="comment">
+
+        </div>
+        <div style="display:none" id="general-comment">
+            <textarea name="General Comment" value="" class="line-space" type="text" id="gen-comm" cols="27" rows="15"  placeholder=""></textarea>
+        </div>
+        <button type="submit" id="submit">Submit</button>
+    </form>
+
+
+
+
+
+
+<!--Timecard Exceptions, Manage Timecards, Schedules, Staffing, Punch, Timecard, My Schedule, Accruals-->
+
+
+</div>
+
+<style>
+    #option-decider-label{
+        margin-left:2%;
+        font-size: 75%;
+        white-space: nowrap;
+        display: none;
+    }
+
+    #option-decider{
+        margin-top: 15%;
+        margin-bottom: 5%;
+        margin-left: 7%;
+        -webkit-transform: scale(3);
+        display: none;
+    }
+
+    button{
+        color: black;
+        border-radius: 12px;
+        width: 125%;
+        align-content: center;
+        font-size: 150%;
+        display: none;
+    }
+    #temp{
+        border: 2px solid;
+        overflow: visible;
+        font-size: 110%;
+    }
+
+    #temp[type=text]:focus {
+        background-color: rgba(94,229,240,0.1);
+        border: 4px solid #f15f28;
+    }
+
+    #gen-comm{
+        margin-top: 10%;
+        -webkit-box-sizing: border-box;
+        font-size: 110%;
+    }
+
+    .container{
+        vertical-align: middle;
+        display: block;
+        position: relative;
+        margin: 100px auto;
+        height: auto;
+        width: 800px;
+        padding: 20px;
+    }
+
+    .container ul{
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        overflow: auto;
+    }
+
+    ul li{
+        color: #AAAAAA;
+        display: block;
+        position: relative;
+        float: left;
+        width: 100%;
+        height: 100px;
+        margin-bottom: 10%;
+        border-bottom: 1px solid #333;
+    }
+
+    ul li input[type=radio]{
+        position: absolute;
+        visibility: hidden;
+    }
+
+    input[type=radio]:checked ~ .check {
+        border: 5px solid #f15f28;
+    }
+
+    .new-class {
+        border: 5px solid #f15f28;
+    }
+
+    input[type=radio]:checked ~ .check::before{
+        background: #f15f28;
+    }
+
+    input[type=radio]:checked ~ label{
+        color: #f15f28;
+    }
+
+    input[type=text]:focus {
+        background-color: rgba(94,229,240,0.1);
+        border: 3px solid #f15f28;
+    }
+
+    input[type=email]:focus {
+        background-color: rgba(94,229,240,0.1);
+        border: 3px solid #f15f28;
+    }
+
+    textarea[type=text]:focus {
+        background-color: rgba(94,229,240,0.1);
+        border: 4px solid #f15f28;
+    }
+
+    .radios{
+        -webkit-transform: scale(8);
+    }
+
+    .checks-yes{
+        -webkit-transform: scale(8);
+        margin-left: 10%;
+        vertical-align: middle;
+    }
+
+    .checks-no{
+        -webkit-transform: scale(8);
+        vertical-align: middle;
+        margin-left: 10%
+    }
+
+    .feedback {
+        background-color:white;
+    }
+
+    .line-space{
+        margin-bottom: 100px;
+    }
+
+    input{
+        font-size: 100%;
+        border: 3px solid #f15f28;
+        -webkit-border-radius: 12px;
+    }
+
+    .welcome-banner {
+        color: black;
+        position: static;
+        text-align: center;
+        font-size: 520%;
+        font-weight: bold;
+        white-space: nowrap;
+
+    }
+
+    .second-banner{
+        margin-left: 25%;
+        color: black;
+        position: static;
+        text-align: center;
+        font-size: 700%;
+        font-weight: bold;
+    }
+
+    .form-props{
+        margin-left: 2%;
+        font-size: 500%;
+    }
+
+    .transform {
+        -webkit-transition: all 2s ease;
+    }
+
+    ::-webkit-input-placeholder {
+        color: #000;
+        opacity: 0.3;
+        -webkit-transition: opacity 0.35s ease-in-out;
+        transition: opacity 0.35s ease-in-out;
+    }
+
+    :focus::-webkit-input-placeholder {
+        opacity: 0;
+        -webkit-transition: opacity 0.35s ease-in-out;
+        transition: opacity 0.35s ease-in-out;
+    }
+
+
+    #toast {
+        visibility: hidden;
+        min-width: 250px;
+        margin-left: -125px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 2px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        bottom: 30px;
+        font-size: 17px;
+    }
+
+    #toast.show {
+        visibility: visible;
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+
+    @-webkit-keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+    }
+
+    @keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+    }
+
+    @-webkit-keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+    }
+
+    @keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .switch input {display:none;}
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #f15f28;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #f15f28;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+</style>
+
+
+
+
+<script>
+    var justAdded = [];//this will hold the ID's of all of the existing textareas for the module comments
+
+    /*
+    * This function used the instance that the user clicks the Yes button.
+     * In this case The hidden module options are revealed and the No button
+     * is turned off and the one textarea that comes along with an "on" No
+     * button is hidden and it's values are set to empty (whatever the user
+     * entered in the textarea is deleted and it's no longer visible).
+     *
+     * If the Yes button is clicked off then hide all of the module options,
+     * and hide all of the textareas that were created, along with setting their
+     * values to empty.
+    */
+
+    function showOptions (yes) {
+        if (yes.checked){
+            document.getElementById("option-decider-label").style.display = "block";
+            document.getElementById("option-decider").style.display = "block";
+            document.getElementById("options").style.display = "block";
+            document.getElementById("checkboxNo").checked = false;
+            document.getElementById("general-comment").style.display = "none";
+            document.getElementById("gen-comm").value = "";
+            document.getElementById("submit").style.display = "none";
+        } else {
+            document.getElementById("comment").style.display = "none";
+            document.getElementById("options").style.display = "none";
+            document.getElementById("submit").style.display = "none";
+            document.getElementById("Timecard Exceptions").checked = false;
+            document.getElementById("Manage Timecards").checked = false;
+            document.getElementById("Schedules").checked = false;
+            document.getElementById("Staffing").checked = false;
+            document.getElementById("Punch").checked = false;
+            document.getElementById("Timecard").checked = false;
+            document.getElementById("My Schedule").checked = false;
+            document.getElementById("Accruals").checked = false;
+            document.getElementById("slider").checked = false;
+            document.getElementById("option-decider").style.display = "none";
+            document.getElementById("option-decider-label").style.display = "none";
+            moduleClicks = 0;
+            destroyNewText();
+
+
+        }
+    }
+
+    function showOptionsNo (no) {
+        if (no.checked){
+            destroyNewText();
+            document.getElementById("option-decider-label").style.display = "none";
+            document.getElementById("option-decider").style.display = "none";
+            document.getElementById("general-comment").style.display = "block";
+            document.getElementById("gen-comm").placeholder = "Leave general comments \n about the  mobile \n app \n here...";
+            document.getElementById("comment").style.display = "none";
+            document.getElementById("options").style.display = "none";
+            document.getElementById("submit").style.display = "block";
+            document.getElementById("checkboxYes").checked = false;
+            document.getElementById("Timecard Exceptions").checked = false;
+            document.getElementById("Manage Timecards").checked = false;
+            document.getElementById("Schedules").checked = false;
+            document.getElementById("Staffing").checked = false;
+            document.getElementById("Punch").checked = false;
+            document.getElementById("Timecard").checked = false;
+            document.getElementById("My Schedule").checked = false;
+            document.getElementById("Accruals").checked = false;
+            document.getElementById("slider").checked = false;
+        } else {
+            document.getElementById("general-comment").style.display = "none";
+            document.getElementById("gen-comm").value = "";
+            document.getElementById("submit").style.display = "none";
+        }
+    }
+
+    /*
+    *This function is used to get rid of textareas that were created
+    * when the user wanted to comment about multiple modules, created
+    * numerous textareas, but then click the Yes button again or clicked
+    * the No button to just do a general comment.
+     */
+    function destroyNewText(){
+        if (justAdded.length !== 0) {//checks that the array is defined is that there are multiple textareas
+            for (i = 0; i < justAdded.length; i++){//start after the first element because the first element is taken care of
+                var str = document.getElementById(justAdded[i]).name;//get the name of the element in the array
+                var lastIndex = str.lastIndexOf(" ");//get rid of the "Comment" tag at the end of the string in order to just get the straight name of the module
+                str = str.substring(0, lastIndex);
+                str += " Label";
+                document.getElementById(str).style.color = "#AAAAAA";
+
+                document.getElementById("comment").removeChild(document.getElementById(justAdded[i]));//access the array get the element and remove the child of the comment div
+            }
+        }
+        justAdded = [];//empty the array
+    }
+
+    /*
+    *This function checks whether the textarea has already
+    * been added for the module. This method is exists to
+    * allow the user to delete an existing textarea by clicking
+    * on the label/radio button. If the user does so, that label
+    * becomes grey. If there are no more textareas, then hide the
+    * submit button, as there are no comments to submit.
+     */
+
+    function checkExisting(radioName){
+        for (i = 0; i < justAdded.length; i++){
+            var str = document.getElementById(justAdded[i]).name;//get the name of the element in the array
+            var lastIndex = str.lastIndexOf(" ");//get rid of the "Comment" tag at the end of the string in order to just get the straight name of the module
+            str = str.substring(0, lastIndex);
+            if (((!(document.getElementById("slider").checked))) && (!(str === radioName.toString()))){//if user just wants to comment on one module and is selecting a new module
+                str += " Label";//add Label to the string in order to get the label by id
+                document.getElementById(str).style.color = "#AAAAAA";//change the label's color to grey
+                document.getElementById("comment").removeChild(document.getElementById(justAdded[i]));//remove the existing textarea
+                justAdded.splice(i, 1);//take it out of the array
+                return true;//return true so that the program proceeds to create a new textarea
+            }
+            if ((str === radioName.toString()) ){//if the name of the radio button the user is clicking equals the name of an existing textarea
+                str += " Label";//add Label to the string in order to get the label by id
+                document.getElementById(str).style.color = "#AAAAAA";//change the label's color to grey
+                document.getElementById("comment").removeChild(document.getElementById(justAdded[i]));//remove the existing textarea
+                justAdded.splice(i, 1);//take it out of the array
+                if (justAdded.length === 0){//if the array is empty
+                    document.getElementById("submit").style.display = "none";//then hide the submit button as there's nothing to submit
+                }//this works for the "one module" option or "multiple module" option. Regardless of which option was toggled the submit button should be hidden given no textarea
+                return false;//return false so that the program does not proceed to create a new textarea
+            }
+        }
+
+        return true;//if there's no match then return true so that the program proceeds to create a new textarea
+    }
+
+    /*
+    * This function keeps the labels of the selected (and still selected) modules highlighted orange, as otherwise
+    * they'd return to grey.
+    */
+
+    function stayHighlighted(){
+        for (var i = 0; i < justAdded.length; i++){
+            var str = document.getElementById(justAdded[i]).name;//get the name of the element in the array
+            var lastIndex = str.lastIndexOf(" ");//get rid of the "Comment" tag at the end of the string in order to just get the straight name of the module
+            str = str.substring(0, lastIndex);
+            str += " Label";//add Label to the string in order to get the label by id
+            document.getElementById(str).style.color = "#f15f28";//change the label's color to Kronos orange
+        }
+    }
+
+    /*
+    *This function adds a new module comment (aka the textarea) to the form.
+    * It creates a new textarea with the same style as the original text area
+    * after checking that a comment area hasn't already been made for the module.
+    * It also makes sure that the labels are the correct color.
+     */
+
+   function newComment(radioThis){
+       if ((checkExisting(radioThis.value)) && ((document.getElementById("slider").checked) || (justAdded.length === 0))){//checks if a textarea has already been made for this module. if one has then don't make another one
+           document.getElementById("comment").style.display = "block";//make the textarea visible and set the name and placeholder
+           var clone = document.createElement("TEXTAREA");//create a new textarea
+           clone.id = "Comment " + radioThis.value;//set a unique ID for this textarea using moduleClicks counter
+           clone.name = radioThis.value + " Comment";//set a name that will be easily identified in the JSON
+           clone.cols = "27";//set rows and columns
+           clone.rows = "15";
+           clone.setAttribute("style", "font-size: 110%; margin-bottom: 10%; border: 2px solid; overflow: visible");//set the style
+           clone.addEventListener("focus", function () {//listener for when the user clicks on the textarea it fills light blue and the border becomes orange
+               this.style.backgroundColor = "rgba(94,229,240,0.1)";
+               this.style.border = "4px solid #f15f28";
+           });
+           clone.placeholder = "Leave comments about the \n" + radioThis.value + " module here...";//sets the placeholder
+           clone.value = "";
+           document.getElementById("comment").appendChild(clone);//append to previous textarea (will appear below it and above the submit button)
+           justAdded.push(clone.id.toString());//add the ID of the newly appended element to the array
+           document.getElementById("submit").style.display = "block";
+           if (document.getElementById("slider").checked){//if the option for multiple module comments is toggled
+               stayHighlighted();//call on this method to ensure that all the selected options remain highlighted orange
+           }
+           var lastIndex = clone.name.toString().lastIndexOf(" ");//get rid of the "Comment" tag at the end of the string in order to just get the straight name of the module
+           var str = clone.name.substring(0, lastIndex);
+           str += " Label";//add Label to the string in order to get the label by id
+           document.getElementById(str).style.color = "#f15f28";//set the label that corresponds to the new textarea Kronos orange
+       }
+   }
+
+   /*
+   * This function submits the form, putting all information into JSON
+   * string/array form. If the user has forgotten to enter information
+   * it will send a window alert informing them, and depending on which information
+   * is missing, will set the font to red so it's clear to the user what they are forgetting.
+    */
+
+   function onSubmit(){
+       document.getElementById("first-name-label").style.color="black";//set all of the inputs to black in case this is the second time the user has forgotten something and therefore one of them is red right now
+       document.getElementById("last-name-label").style.color="black";
+       document.getElementById("email-label").style.color="black";
+       document.getElementById("company-label").style.color="black";
+       if (empty()){//checks if the user has forgotten to enter any information
+           var formData = JSON.stringify($('form').serializeArray());//puts into JSON
+           //window.plugins.toast.showShortTop("Your toast message goes here.");
+           window.alert(formData);//display the JSON
+           window.alert("Thank you.\n\nYour feedback has\nbeen recorded.");
+           window.history.back();
+       } else {
+           return false; //don't submit
+       }
+   }
+
+   /*
+   *This function determines if the user has forgotten to enter any information
+   * in the input fields or the textarea. If they forgot to enter something in the
+   * basic information section, the label of the input field will light up red to make
+   * it more visible what they have forgotten
+    */
+
+   function empty (){
+       if (document.getElementById("first-name").value === "") {//check if the input field is empty
+           document.getElementById("first-name-label").style.color="red";//if it is then make the label red
+           window.alert("Please enter your first name");//set and alert to tell the user what they have forgotten
+           return false;//return false to tell the previous method not to submit the form
+       } else if (document.getElementById("last-name").value ==="") {
+           document.getElementById("last-name-label").style.color="red";
+           window.alert("Please enter your last name");
+           return false;
+       } else if (document.getElementById("email").value ==="") {
+           document.getElementById("email-label").style.color="red";
+           window.alert("Please enter your email");
+           return false;
+       } else if (document.getElementById("company").value ==="") {
+           document.getElementById("company-label").style.color="red";
+           window.alert("Please enter your company");
+           return false;
+       } else if (noComment()){//comments are dealt with differently than the basic information
+            window.alert("Please leave a comment");
+            return false;
+       } else {
+           return true;
+       }
+   }
+
+   /*
+   *This function checks if the user has forgotten to enter any comments
+   * If the user has multiple textareas and has only commented one of them,
+   * then the method returns false, meaning that it's ok to submit the form,
+   * however if the user hasn't commented any of the textareas (if there are
+   * multiple or just one) then the method returns true, meaning that it is not
+   * ok to submit the form.
+    */
+
+   function noComment(){
+       if (document.getElementById("checkboxNo").checked){//determine which box is checked the Yes or the No box because that determines which textareas should be filled
+           if (document.getElementById("gen-comm").value === ""){//if the general comment textarea is empty
+               return true;//don't submit the form
+           }
+       } else {//else if the Yes box is checked
+           if (justAdded.length > 0){//if there are 1 or more textareas
+               for (i = 0; i < justAdded.length; i++){//iterate through all of them by accessing their ID from the array
+                   if (document.getElementById(justAdded[i]).value !== ""){//if just one of them is NOT empty
+                        return false;//then it's ok to submit the form
+                    }
+               }
+               return true;//if none of them have text then it's not ok to submit the form
+           }
+       }
+       return false;//there are comments so it's ok to submit the form
+   }
+
+</script>
+
